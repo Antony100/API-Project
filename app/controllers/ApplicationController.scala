@@ -1,11 +1,12 @@
 package controllers
 
 import play.api.mvc.{BaseController, ControllerComponents, Results}
+import repositories.DataRepository
 
 import javax.inject.Inject
 
 
-class ApplicationController @Inject()(val controllerComponents: ControllerComponents) extends BaseController {
+class ApplicationController @Inject()(val controllerComponents: ControllerComponents, val dataRepository: DataRepository) extends BaseController {
 
   def index() = Action {
     Results.Ok
