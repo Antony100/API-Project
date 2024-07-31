@@ -1,15 +1,16 @@
 package controllers
 
 import models.DataModel
-import play.api.libs.json.Json
+import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents, Results}
 import repositories.DataRepository
-
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 
-class ApplicationController @Inject()(val controllerComponents: ControllerComponents, val dataRepository: DataRepository) (implicit val ec: ExecutionContext) extends BaseController {
+class ApplicationController @Inject()(val controllerComponents: ControllerComponents,
+                                      val dataRepository: DataRepository)
+                                     (implicit val ec: ExecutionContext) extends BaseController {
 
   def index(): Action[AnyContent] = Action.async { implicit request =>
     dataRepository.index().map{
@@ -18,7 +19,13 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
     }
   }
 
-  def create() = TODO
+  def create(): Action[JsValue] = Action.async(parse.json) { implicit request =>
+    request.body.validate[DataModel] match {
+      case JsSuccess(dataModel, _) =>
+        dataRepository.create(dataModel).map(_ => Created)
+      case JsError(_) => Future(BadRequest)
+    }
+  }
 
 
   def read(id: String): Action[AnyContent] = Action.async { implicit request =>
@@ -27,7 +34,13 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
     }
   }
 
-  def update(id: String) = TODO
+  def update(id: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
+    request.body.validate[DataModel] match {
+      case JsSuccess(dataModel, _) =>
+        dataRepository.update(id, dataModel).map(_ => Accepted)
+      case JsError(_) => Future(BadRequest)
+    }
+  }
 
   def delete(id: String): Action[AnyContent] = Action.async { implicit request =>
     dataRepository.delete(id).map { _ =>
