@@ -5,7 +5,7 @@ import models.DataModel
 import play.api.test.FakeRequest
 import play.api.http.Status
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Result
+import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.Helpers._
 
 import scala.concurrent.Future
@@ -63,28 +63,43 @@ class ApplicationControllerSpec extends BaseSpecWithApplication{
 
   "ApplicationController .update()" should {
 
-        "update a book in the database by id" in {
-          val updatedDataModel: DataModel = DataModel(
-            "abcd",
-            "updated test name",
-            "updated test description",
-            200
-          )
-            val request: FakeRequest[JsValue] = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(dataModel))
-            val createdResult: Future[Result] = TestApplicationController.create()(request)
+    "update a book in the database by id" in {
+      val updatedDataModel: DataModel = DataModel(
+        "abcd",
+        "updated test name",
+        "updated test description",
+        200
+      )
+      val request: FakeRequest[JsValue] = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(dataModel))
+      val createdResult: Future[Result] = TestApplicationController.create()(request)
 
 
-            val updateRequest: FakeRequest[JsValue] = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(updatedDataModel))
-            val updateResult: Future[Result] = TestApplicationController.update("abcd")(updateRequest)
+      val updateRequest: FakeRequest[JsValue] = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(updatedDataModel))
+      val updateResult: Future[Result] = TestApplicationController.update("abcd")(updateRequest)
 
-            status(createdResult) shouldBe Status.CREATED
-            status(updateResult) shouldBe Status.ACCEPTED
-            contentAsJson(updateResult).as[DataModel] shouldBe updatedDataModel
-          }
+      status(createdResult) shouldBe Status.CREATED
+      status(updateResult) shouldBe Status.ACCEPTED
+      contentAsJson(updateResult).as[DataModel] shouldBe updatedDataModel
+    }
 
 
-    "ApplicationController .delete()" should {
+    "ApplicationController.delete()" should {
 
+      "delete a book in the database by id" in {
+        // Create a record first
+        val createRequest: FakeRequest[JsValue] = buildPost("/api").withBody[JsValue](Json.toJson(dataModel))
+        val createdResult: Future[Result] = TestApplicationController.create()(createRequest)
+
+        // Ensure the record is created
+        status(createdResult) shouldBe Status.CREATED
+
+        // Delete the record
+        val deleteRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(DELETE, s"/api/${dataModel._id}")
+        val deleteResult: Future[Result] = TestApplicationController.delete("abcd")(deleteRequest)
+
+        // Verify the delete operation
+        status(deleteResult) shouldBe Status.ACCEPTED
+      }
     }
   }
 
