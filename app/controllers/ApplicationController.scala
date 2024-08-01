@@ -34,11 +34,13 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
     }
   }
 
+
   def update(id: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[DataModel] match {
-      case JsSuccess(dataModel, _) =>
-        dataRepository.update(id, dataModel).map(_ => Accepted)
-      case JsError(_) => Future(BadRequest)
+      case JsSuccess(book, _) =>
+        dataRepository.update(id, book).map(_ => Accepted(Json.toJson(book)))
+      case JsError(_) => Future.successful(BadRequest)
+
     }
   }
 
