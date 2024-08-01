@@ -40,6 +40,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
       case JsSuccess(book, _) =>
         dataRepository.update(id, book).map(_ => Accepted(Json.toJson(book)))
       case JsError(_) => Future.successful(BadRequest)
+
     }
   }
 

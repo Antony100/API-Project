@@ -1,6 +1,7 @@
 package controllers
 
 import baseSpec.BaseSpecWithApplication
+
 import models.DataModel
 import play.api.test.FakeRequest
 import play.api.http.Status
@@ -17,12 +18,14 @@ class ApplicationControllerSpec extends BaseSpecWithApplication{
     repository,
   )
 
+
   private val dataModel: DataModel = DataModel(
     "abcd",
     "test name",
     "test description",
     100
   )
+
   "ApplicationController .index" should {
 
     val result = TestApplicationController.index()(FakeRequest())
@@ -31,6 +34,7 @@ class ApplicationControllerSpec extends BaseSpecWithApplication{
       status(result) shouldBe Status.OK
     }
   }
+
 
   "ApplicationController .create" should {
 
@@ -44,6 +48,7 @@ class ApplicationControllerSpec extends BaseSpecWithApplication{
   }
 
   "ApplicationController .read" should {
+
 
     "find a book in the database by id" in {
 
