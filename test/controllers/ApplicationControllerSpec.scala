@@ -59,16 +59,35 @@ class ApplicationControllerSpec extends BaseSpecWithApplication{
     }
   }
 
+
+
   "ApplicationController .update()" should {
 
-    "update a book in the database by id" in {
+        "update a book in the database by id" in {
+          val updatedDataModel: DataModel = DataModel(
+            "abcd",
+            "updated test name",
+            "updated test description",
+            200
+          )
+            val request: FakeRequest[JsValue] = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(dataModel))
+            val createdResult: Future[Result] = TestApplicationController.create()(request)
+
+
+            val updateRequest: FakeRequest[JsValue] = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(updatedDataModel))
+            val updateResult: Future[Result] = TestApplicationController.update("abcd")(updateRequest)
+
+            status(createdResult) shouldBe Status.CREATED
+            status(updateResult) shouldBe Status.ACCEPTED
+            contentAsJson(updateResult).as[DataModel] shouldBe updatedDataModel
+          }
+
+
+    "ApplicationController .delete()" should {
 
     }
   }
 
-  "ApplicationController .delete()" should {
-
-  }
 
   override def beforeEach(): Unit = await(repository.deleteAll())
   override def afterEach(): Unit = await(repository.deleteAll())
